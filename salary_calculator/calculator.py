@@ -34,8 +34,12 @@ def calculate_salary(gross_salary: Decimal, payments: int = 13) -> SalaryCalcula
         employee_deduction,
         additional_deduction,
     )
-    regional_tax = calculate_lombardy_regional_tax(taxable_income)
-    municipal_tax = calculate_milan_municipal_tax(taxable_income)
+    if net_irpef > Decimal("0"):
+        regional_tax = calculate_lombardy_regional_tax(taxable_income)
+        municipal_tax = calculate_milan_municipal_tax(taxable_income)
+    else:
+        regional_tax = Decimal("0")
+        municipal_tax = Decimal("0")
     treatment_integrativo = calculate_treatment_integrativo(
         taxable_income,
         gross_irpef,

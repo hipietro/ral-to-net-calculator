@@ -43,5 +43,6 @@ All monetary outputs use `Decimal` and are rounded to euro cents with `ROUND_HAL
 - The prototype uses taxable employment income as the reference income for deductions and tax-wedge thresholds.
 - The ordinary 9.19% employee contribution rate is a simplified standard-case assumption; exact rates can vary by employer sector and contribution profile.
 - The 1% additional contribution is applied above the 2026 annual threshold of €56,224.
+- Regional and municipal surtaxes are charged only when net IRPEF is due.
 - Milan's €23,000 municipal exemption is treated as a threshold, not as a franchise.
 - The treatment integrativo is modelled only for the standard full-year case up to €15,000 and excludes the more complex €15,000–€28,000 eligibility path involving other deductions.

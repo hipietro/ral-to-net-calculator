@@ -26,3 +26,11 @@ def test_payments_change_only_average_payment():
 
     assert thirteen.annual_net == fourteen.annual_net
     assert thirteen.net_per_payment != fourteen.net_per_payment
+
+
+def test_local_surtaxes_are_not_due_when_net_irpef_is_zero():
+    result = calculate_salary(Decimal("5000"), 13)
+
+    assert result.net_irpef == Decimal("0.00")
+    assert result.regional_tax == Decimal("0")
+    assert result.municipal_tax == Decimal("0")
