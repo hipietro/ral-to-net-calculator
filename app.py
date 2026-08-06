@@ -1,11 +1,8 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
 
 @app.get("/")
 def home():
-    return """
-    <h1>RAL to Net Calculator</h1>
-    <p>The application is running.</p>
-    """
+    return render_template("index.html")
