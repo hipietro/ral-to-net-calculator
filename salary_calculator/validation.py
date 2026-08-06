@@ -16,7 +16,15 @@ def parse_gross_salary(raw_value: str | None) -> Decimal:
         else:
             normalized = normalized.replace(",", "")
     elif "," in normalized:
-        normalized = normalized.replace(",", ".")
+        groups = normalized.split(",")
+        if len(groups) > 1 and all(len(group) == 3 for group in groups[1:]):
+            normalized = "".join(groups)
+        else:
+            normalized = normalized.replace(",", ".")
+    elif "." in normalized:
+        groups = normalized.split(".")
+        if len(groups) > 1 and all(len(group) == 3 for group in groups[1:]):
+            normalized = "".join(groups)
 
     try:
         gross_salary = Decimal(normalized)

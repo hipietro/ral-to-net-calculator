@@ -5,8 +5,11 @@ import pytest
 from salary_calculator.validation import parse_gross_salary, parse_payments
 
 
-def test_parses_italian_number_format():
+def test_parses_common_number_formats():
+    assert parse_gross_salary("35.000") == Decimal("35000")
+    assert parse_gross_salary("35,000") == Decimal("35000")
     assert parse_gross_salary("35.000,50") == Decimal("35000.50")
+    assert parse_gross_salary("35000.50") == Decimal("35000.50")
 
 
 def test_rejects_out_of_scope_salary():
