@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ral-to-net-calculator
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    healthCheckPath: /health
+    autoDeployTrigger: commit

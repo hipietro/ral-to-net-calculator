@@ -3,50 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A transparent 2026 Italian gross-to-net salary calculator for a standard employee resident in Milan.">
     <title>RAL to Net Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <main>
-        <h1>RAL to Net Calculator</h1>
-        <p>Estimate your annual and monthly net salary.</p>
+    <header class="site-header">
+        <a class="brand" href="/" aria-label="RAL to Net Calculator home">
+            <span class="brand-mark">R→N</span>
+            <span>RAL to Net</span>
+        </a>
+        <a class="github-link" href="https://github.com/hipietro/ral-to-net-calculator" target="_blank" rel="noreferrer">View source</a>
+    </header>
 
-        <form method="post">
-            <label for="gross_salary">
-                Gross annual salary
-            </label>
+    <main class="page-shell">
+        <section class="hero">
+            <p class="eyebrow">Italian salary estimate · Tax year 2026</p>
+            <h1>From gross salary to net pay, without the black box.</h1>
+            <p class="hero-copy">Enter a RAL and see the estimated annual net, average pay cheque and every deduction used by the model.</p>
+            <div class="assumption-chips" aria-label="Calculation assumptions">
+                <span>Permanent employee</span>
+                <span>Private sector</span>
+                <span>Milan, Lombardy</span>
+                <span>Full year</span>
+            </div>
+        </section>
 
-            <input
-                type="number"
-                id="gross_salary"
-                name="gross_salary"
-                min="0"
-                step="100"
-                placeholder="35000"
-                required
-            >
+        <section class="calculator-grid">
+            <div class="panel input-panel">
+                <div class="panel-heading">
+                    <p class="step-label">01 · Input</p>
+                    <h2>Estimate your salary</h2>
+                </div>
 
-            <button type="submit">Calculate</button>
-        </form>
+                <form method="post" novalidate>
+                    <label for="gross_salary">Gross annual salary (RAL)</label>
+                    <div class="money-input">
+                        <span>€</span>
+                        <input
+                            type="text"
+                            inputmode="decimal"
+                            id="gross_salary"
+                            name="gross_salary"
+                            value="{{ form_salary }}"
+                            placeholder="35.000"
+                            autocomplete="off"
+                            aria-describedby="salary-help"
+                            required
+                        >
+                    </div>
+                    <p id="salary-help" class="field-help">Supported range: €5,000–€120,000.</p>
 
-        {% if error_message %}
-            <p role="alert">{{ error_message }}</p>
-        {% endif %}
+                    <label for="payments">Payments per year</label>
+                    <select id="payments" name="payments">
+                        {% for option in [12, 13, 14] %}
+                            <option value="{{ option }}" {% if form_payments|int == option %}selected{% endif %}>{{ option }} payments</option>
+                        {% endfor %}
+                    </select>
+                    <p class="field-help">This changes the average amount per payment, not annual net income.</p>
 
-        {% if gross_salary is not none %}
-            <section>
-                <h2>Calculation result</h2>
+                    {% if error_message %}
+                        <div class="error-message" role="alert">{{ error_message }}</div>
+                    {% endif %}
 
-                <p>
-                    Gross annual salary:
-                    <strong>€{{ gross_salary }}</strong>
-                </p>
+                    <button type="submit">Calculate net salary</button>
+                </form>
 
-                <p>
-                    Estimated employee contributions:
-                    <strong>€{{ employee_contributions }}</strong>
-                </p>
-            </section>
-        {% endif %}
+                <div class="scope-note">
+                    <strong>Prototype scope</strong>
+                    <p>No dependants, personal deductions, bonuses, fringe benefits, TFR or special tax regimes.</p>
+                </div>
+            </div>
+
+            <div class="panel result-panel {% if not result %}empty-result{% endif %}">
+                {% if result %}
+                    <div class="panel-heading">
+                        <p class="step-label">02 · Result</p>
+                        <h2>Your estimated take-home pay</h2>
+                    </div>
+
+                    <div class="result-hero">
+                        <div>
+                            <span>Annual net</span>
+                            <strong>€{{ result.annual_net|euro }}</strong>
+                        </div>
+                        <div>
+                            <span>Average per payment</span>
+                            <strong>€{{ result.net_per_payment|euro }}</strong>
+                        </div>
+                        <div>
+                            <span>Take-home rate</span>
+                            <strong>{{ result.take_home_rate }}%</strong>
+                        </div>
+                    </div>
+
+                    <div class="distribution" aria-label="Salary distribution">
+                        <div class="distribution-row">
+                            <span>Net salary</span>
+                            <strong>€{{ result.annual_net|euro }}</strong>
+                        </div>
+                        <div class="distribution-bar">
+                            <span class="net-segment" style="width: {{ result.take_home_rate }}%"></span>
+                        </div>
+                        <div class="distribution-legend">
+                            <span>Net {{ result.take_home_rate }}%</span>
+                            <span>Withheld €{{ result.total_withheld|euro }}</span>
+                        </div>
+                    </div>
+
+                    <div class="breakdown">
+                        <h3>What is withheld</h3>
+                        <div class="breakdown-row">
+                            <span>Employee social contributions</span>
+                            <strong>− €{{ result.employee_contributions|euro }}</strong>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>National income tax (net IRPEF)</span>
+                            <strong>− €{{ result.net_irpef|euro }}</strong>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>Lombardy regional surtax</span>
+                            <strong>− €{{ result.regional_tax|euro }}</strong>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>Milan municipal surtax</span>
+                            <strong>− €{{ result.municipal_tax|euro }}</strong>
+                        </div>
+                        {% if result.tax_free_employee_sum > 0 %}
+                            <div class="breakdown-row positive">
+                                <span>Tax-free employee benefit</span>
+                                <strong>+ €{{ result.tax_free_employee_sum|euro }}</strong>
+                            </div>
+                        {% endif %}
+                        {% if result.treatment_integrativo > 0 %}
+                            <div class="breakdown-row positive">
+                                <span>Treatment integrativo</span>
+                                <strong>+ €{{ result.treatment_integrativo|euro }}</strong>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <details class="calculation-details">
+                        <summary>See the calculation steps</summary>
+                        <div class="details-content">
+                            <div><span>Gross annual salary</span><strong>€{{ result.gross_salary|euro }}</strong></div>
+                            <div><span>Employee contributions</span><strong>− €{{ result.employee_contributions|euro }}</strong></div>
+                            <div class="subtotal"><span>Taxable income</span><strong>€{{ result.taxable_income|euro }}</strong></div>
+                            <div><span>Gross IRPEF</span><strong>€{{ result.gross_irpef|euro }}</strong></div>
+                            <div><span>Employee deduction</span><strong>− €{{ result.employee_deduction|euro }}</strong></div>
+                            <div><span>Additional employee deduction</span><strong>− €{{ result.additional_employee_deduction|euro }}</strong></div>
+                            <div class="subtotal"><span>Net IRPEF</span><strong>€{{ result.net_irpef|euro }}</strong></div>
+                        </div>
+                    </details>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">€</div>
+                        <h2>Your result will appear here</h2>
+                        <p>The calculator will show the annual net, average payment and a transparent tax breakdown.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="method-section">
+            <div>
+                <p class="step-label">03 · Method</p>
+                <h2>Designed to be explainable</h2>
+            </div>
+            <div class="method-cards">
+                <article><span>1</span><h3>Contributions</h3><p>Estimate employee-side social-security contributions and derive taxable income.</p></article>
+                <article><span>2</span><h3>National tax</h3><p>Apply progressive 2026 IRPEF brackets, employee deductions and tax-wedge relief.</p></article>
+                <article><span>3</span><h3>Local taxes</h3><p>Apply the 2026 Lombardy surtax and Milan municipal rules.</p></article>
+            </div>
+        </section>
+
+        <section class="disclaimer">
+            <strong>Indicative estimate, not payroll advice.</strong>
+            <p>Real payslips can differ because of payroll timing, contract-specific contributions, personal circumstances, bonuses and year-end adjustments. Sources, assumptions and limitations are documented in the repository.</p>
+        </section>
     </main>
+
+    <footer>
+        <span>Built with Python, Flask and explicit tax rules.</span>
+        <span>Rules verified for tax year 2026.</span>
+    </footer>
 </body>
 </html>
