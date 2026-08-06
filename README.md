@@ -1,5 +1,6 @@
 # RAL to Net Calculator
 
+[![Test](https://github.com/hipietro/ral-to-net-calculator/actions/workflows/test.yml/badge.svg)](https://github.com/hipietro/ral-to-net-calculator/actions/workflows/test.yml)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/hipietro/ral-to-net-calculator)
 
 A transparent Italian gross-to-net salary calculator built for the Jet HR Product Builder task.
