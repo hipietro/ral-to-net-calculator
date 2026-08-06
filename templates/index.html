@@ -9,6 +9,35 @@
     <main>
         <h1>RAL to Net Calculator</h1>
         <p>Estimate your annual and monthly net salary.</p>
+
+        <form method="post">
+            <label for="gross_salary">
+                Gross annual salary
+            </label>
+
+            <input
+                type="number"
+                id="gross_salary"
+                name="gross_salary"
+                min="0"
+                step="100"
+                placeholder="35000"
+                required
+            >
+
+            <button type="submit">Calculate</button>
+        </form>
+
+        {% if error_message %}
+            <p role="alert">{{ error_message }}</p>
+        {% endif %}
+
+        {% if gross_salary is not none %}
+            <section>
+                <h2>Validated input</h2>
+                <p>Gross annual salary: €{{ gross_salary }}</p>
+            </section>
+        {% endif %}
     </main>
 </body>
 </html>
