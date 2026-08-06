@@ -34,8 +34,17 @@
 
         {% if gross_salary is not none %}
             <section>
-                <h2>Validated input</h2>
-                <p>Gross annual salary: €{{ gross_salary }}</p>
+                <h2>Calculation result</h2>
+
+                <p>
+                    Gross annual salary:
+                    <strong>€{{ gross_salary }}</strong>
+                </p>
+
+                <p>
+                    Estimated employee contributions:
+                    <strong>€{{ employee_contributions }}</strong>
+                </p>
             </section>
         {% endif %}
     </main>
